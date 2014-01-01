@@ -15,7 +15,7 @@ This knife plugin currently requires the Knife-Essentials gem to be installed in
 ## Chef Server Install (Recommended)
 This will install the plugin directly on the Chef Server:
 
-    /opt/opscode/embedded/bin/gem install knife-ec-backup
+    /opt/opscode/embedded/bin/gem install knife-essentials
     /opt/opscode/embedded/bin/gem install knife-ec-backup
 
 ## Build from source
@@ -46,7 +46,52 @@ It is recommended that you run this from a frontend Enterprise Chef Server, you 
   * `--skip-version-check'`:
     Whether to skip checking the Chef Server version.  This will also skip any auto-configured options (default: false)
 
-Creates a repository of an entire Enterprise Chef / Private Chef server.
+# Usage Example
+
+## Create a Working Directory Structure
+
+```
+mkdir -p transfer/.chef
+mkdir transfer/backup_dir
+```
+
+## Populate your transfer/.chef/knife.rb config file
+
+```ruby
+transfer_repo = File.expand_path('..', File.dirname(__FILE__))
+chef_server_root      'https://CHEF-SEVER-ROOT'
+node_name             'pivotal'
+client_key            "#{transfer_repo}/.chef/pivotal.pem"
+repo_mode             'hosted_everything'
+versioned_cookbooks   true
+chef_repo_path        transfer_repo
+cookbook_path         nil
+```
+
+Enter the root of your Chef server as applicable.
+
+## Install Pivotal and Webui Keys
+
+Check /etc/opscode on your Chef server and copy the keys to:
+
+```
+.chef/pivotal.pem
+.chef/webui_priv.pem
+```
+
+## Execute a Backup
+
+From the transfer dir:
+
+```bash
+/opt/opscode/embedded/bin/knife ec backup backup_dir --webui-key .chef/webui_priv.pem
+```
+
+## Troubleshooting
+
+Add the `-VV` option to enable debug logging.
+
+# Output Directory Structure
 
 The format of the repository is based on the `knife-essentials` (`knife download`) format and looks like this:
 
